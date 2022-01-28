@@ -1,0 +1,9 @@
+{
+    "name": "product-catalog-management:: PRODUCTION" ,
+    "DB_SERVER": {
+        "scheme": "mongodb://",
+        "host": "",
+        "port": "",
+        "dbName": "productsClone"
+    }
+}

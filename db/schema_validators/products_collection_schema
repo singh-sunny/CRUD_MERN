@@ -1,0 +1,103 @@
+{
+  $jsonSchema: {
+    bsonType: 'object',
+    required: [
+      'faq',
+      'varients'
+    ],
+    properties: {
+      faq: {
+        bsonType: 'array',
+        minItems: 0,
+        items: {
+          bsonType: 'object',
+          required: [
+            'question',
+            'answer'
+          ],
+          properties: {
+            question: {
+              bsonType: 'string'
+            },
+            answer: {
+              bsonType: 'string'
+            }
+          }
+        }
+      },
+      varients: {
+        bsonType: 'array',
+        minItems: 1,
+        items: {
+          bsonType: 'object',
+          required: [
+            'skuID',
+            'productTitle',
+            'productDescription',
+            'isActive',
+            'dicountedListPrice',
+            'listPrice',
+            'EANCode',
+            'HSNCode',
+            'taxPercentage',
+            'media'
+          ],
+          properties: {
+            skuID: {
+              bsonType: 'string'
+            },
+            productTitle: {
+              bsonType: 'string'
+            },
+            productDescription: {
+              bsonType: 'string'
+            },
+            isActive: {
+              bsonType: 'bool'
+            },
+            dicountedListPrice: {
+              bsonType: 'int'
+            },
+            listPrice: {
+              bsonType: 'int'
+            },
+            EANCode: {
+              bsonType: 'int'
+            },
+            HSNCode: {
+              bsonType: 'int'
+            },
+            taxPercentage: {
+              bsonType: 'int'
+            },
+            color: {
+              bsonType: 'string'
+            },
+            size: {
+              bsonType: 'string'
+            },
+            media: {
+              bsonType: 'array',
+              minItems: 1,
+              items: {
+                bsonType: 'object',
+                required: [
+                  'originalFilename',
+                  'path'
+                ],
+                properties: {
+                  originalFilename: {
+                    bsonType: 'string'
+                  },
+                  path: {
+                    bsonType: 'string'
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

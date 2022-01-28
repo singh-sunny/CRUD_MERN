@@ -1,0 +1,10 @@
+{
+    "name": "product-catalog-management:: DEVELOPMENT" ,
+    "DB_SERVER": {
+        "scheme": "mongodb://",
+        "host": "localhost",
+        "port": "27017",
+        "dbName": "productsClone"
+    },
+    "media_directory": "public/assets/media"
+}
