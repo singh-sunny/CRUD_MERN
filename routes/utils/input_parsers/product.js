@@ -62,8 +62,8 @@ const parsePostPutReq = (httpRequest, isPut=false) => {
         });
 
         form.on('close', async () => {
-            const httpMethod = isPut ? 'PUT' : 'POST';
-            const { error } = validateHTTPReqPayload(productDetails, productMedia, httpMethod);
+            
+            const { error } = validateHTTPReqPayload(productDetails, productMedia);
             
             if(error) {
                 resolve({error: {code: 400, msg: `Bad Input ${error.message || error.details[0].message}`}})
@@ -141,15 +141,29 @@ const parsePatchReq = (httpRequest) => {
                 return;
             }
 
-            const delCmd = _patchGetDeleteSubDocumentsDBCmd(productDetails);
-            delCmd ? dbCmds.push(delCmd) : null;
+            let output = _patchGetDeleteSubDocumentsDBCmd(productDetails);
+            output.dbCommands ? dbCmds.push(output.dbCommands) : null;
 
-            const createCmd = _pathcGetCreateSubDocumentsDBCmd(productDetails, productMedia);
-            createCmd ? dbCmds.push(createCmd) : null;
+            if(output.error) {
+                resolve({error: {code: 400, msg: `Bad Input ${err.msg}`}});
+                return;
+            }
 
-            const updateCmds = _pathGetUpdateSubDocumentsDBCmd(productDetails, productMedia);
-            
-            dbCmds = updateCmds ? [...dbCmds, ...updateCmds] : dbCmds;
+            output = _pathcGetCreateSubDocumentsDBCmd(productDetails, productMedia);
+            output.dbCommands ? dbCmds.push(output.dbCommands) : null;
+
+            if(output.error) {
+                resolve({error: {code: 400, msg: `Bad Input ${err.msg}`}});
+                return;
+            }
+
+            output = _pathGetUpdateSubDocumentsDBCmd(productDetails, productMedia);
+            dbCmds = output.dbCommands ? [...dbCmds, ...output.dbCommands] : dbCmds;
+
+            if(output.error) {
+                resolve({error: {code: 400, msg: `Bad Input ${err.msg}`}});
+                return;
+            }
 
             if(productDetails.deleteMediaForDeletedVarients) {
                 staleMedia = [...productDetails.deleteMediaForDeletedVarients];
@@ -157,7 +171,6 @@ const parsePatchReq = (httpRequest) => {
             if(productDetails.deleteMediaForUpdatedVarients) {
                 staleMedia = [...staleMedia ,...productDetails.deleteMediaForUpdatedVarients];
             }
-            
             
             resolve({dbCmds: dbCmds, staleMedia: staleMedia});
         });
@@ -182,10 +195,10 @@ const _patchGetDeleteSubDocumentsDBCmd = (productDetails) => {
             faq && faq.delete ? delExp.$pull.faq = {  _id: {  $in: faq.delete } } : null;
             varients && varients.delete ? delExp.$pull.varients = {  _id: {  $in: varients.delete } } : null;
 
-            return {query: delExp, options: {new: true, runValidators: true}};
+            return {dbCommands: {query: delExp, options: {new: true, runValidators: true}}, error: null};
         }
 
-        return null;
+        return {error: null, dbCommands: null};
 }
 
 const _pathcGetCreateSubDocumentsDBCmd = (productDetails, productMedia) => {
@@ -195,13 +208,18 @@ const _pathcGetCreateSubDocumentsDBCmd = (productDetails, productMedia) => {
 
     if(varients && varients.create) {
         varients.create.forEach((v) => {
-            productMedia[v.skuID].forEach((m) => {
-                v.media = [];
-                v.media.push({
-                    originalFilename: m.originalFilename,
-                    path: m.path
+            if(productMedia[v.skuID]) {
+                productMedia[v.skuID].forEach((m) => {
+                    v.media = [];
+                    v.media.push({
+                        originalFilename: m.originalFilename,
+                        path: m.path
+                    });
                 });
-            })
+            }
+            else {
+                return {dbCommands: null, error: {code: 400, msg: `Media not provided for SKUId ${v.skuID}`}};
+            }
         })
     }
 
@@ -211,10 +229,10 @@ const _pathcGetCreateSubDocumentsDBCmd = (productDetails, productMedia) => {
         faq && faq.create ? createExp.$push.faq = {  $each: faq.create } : null;
         varients && varients.create ? createExp.$push.varients = {  $each: varients.create } : null;
 
-        return {query: createExp, options: {new: true, runValidators: true}};
+        return {dbCommands: {query: createExp, options: {new: true, runValidators: true}}, error: null};
     }
 
-    return null;
+    return {dbCommands: null, error: null};
 }
 
 const _pathGetUpdateSubDocumentsDBCmd = (productDetails, productMedia) => {
@@ -225,6 +243,7 @@ const _pathGetUpdateSubDocumentsDBCmd = (productDetails, productMedia) => {
     const faqEntries = faq && faq.update ? faq.update : [];
     const varientEntries = varients && varients.update ? varients.update : [];
     const deleteMediaForUpdatedVarients = varients && varients.deleteMediaForUpdatedVarients ? varients.deleteMediaForUpdatedVarients : [];
+    const addMediaForUpdatedVarients = varients && varients.addMediaForUpdatedVarients ? varients.addMediaForUpdatedVarients : [];
 
     // set text key: value
     faqEntries.forEach((entry) => {
@@ -277,8 +296,43 @@ const _pathGetUpdateSubDocumentsDBCmd = (productDetails, productMedia) => {
         updateCmds.push(cmd);
     });
 
-    //varients for which media is deleted 
-    
+    //varients for which media is added
+    addMediaForUpdatedVarients.forEach((skuID) => {
+        if(productMedia[skuID]) {
+
+            const medias = [];
+
+            productMedia[skuID].forEach((m) => {
+                medias.push({
+                    originalFilename: m.originalFilename,
+                    path: m.path
+                });
+            });
+
+            const cmd = {
+                query: {
+                    $push: {
+                        "varients.$[el].media": {$each: medias}
+                    }
+                },
+                options: {
+                    new: true,
+                    runValidators: true,
+                    arrayFilters: [
+                        { "el.skuID": skuID}
+                    ]
+                }
+            };
+        }
+        else {
+            //corresponding file is not provided in form data
+            //BAD Input
+            return {dbCommands: [], error: {code: 400, msg: `Media not provided for SKUId ${skuID}`}};
+        }
+        
+    });
+
+    //varients for which media is deleted.
     deleteMediaForUpdatedVarients.forEach((m) => {
         m = m.split(':');
         const cmd = {
@@ -293,7 +347,7 @@ const _pathGetUpdateSubDocumentsDBCmd = (productDetails, productMedia) => {
                 new: true,
                 runValidators: true,
                 arrayFilters: [
-                    { "el._id": m[0]}
+                    { "el.skuID": m[0]}
                 ]
             }
         };
@@ -301,19 +355,7 @@ const _pathGetUpdateSubDocumentsDBCmd = (productDetails, productMedia) => {
         updateCmds.push(cmd);
     });
     
-    
-
-    // // varients for which media is added
-    // varientEntries.forEach((v) => {
-    //     productMedia[v.skuID].forEach((m) => {
-    //         v.media.push({
-    //             originalFilename: m.originalFilename,
-    //             path: m.path
-    //         });
-    //     })
-    // });
-
-    return updateCmds;
+    return {dbCommands: updateCmds, error: null};
 }
 
 

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const { Product } = require('../models/product');
 const { parseAndGetDBReq } = require('./utils/input_parsers/product');
 const { deleteStateMedia } = require('./utils/deleteStaleMedia');
@@ -81,6 +82,10 @@ router.put('/:id', auth,asyncMiddleware(async (req, res) => {
     deleteStateMedia(staleMedia);  
 }));
 
+
+/**
+ * DONT USE IT, It uses transaction and therefore would need replica set
+ */
 router.patch('/:id', auth, asyncMiddleware(async (req, res) => {
     res.set('Content-Type', 'application/json; charset=utf-8');
     const id = req.params.id, updatePromises = [];
@@ -92,12 +97,17 @@ router.patch('/:id', auth, asyncMiddleware(async (req, res) => {
     if(error) return res.status(400).send({error: error.msg});
 
     //execute db commands is transaction
-    const session = await Product.startSession();
+    const session = await mongoose.startSession();
     session.startTransaction();
-    dbCmds.forEach((cmd) => {updatePromises.push(Product.findOneAndUpdate({_id: id}, cmd.query, cmd.options));});
     
     try {
+        dbCmds.forEach((cmd) => {
+            cmd.options.session = session;
+            updatePromises.push(Product.findOneAndUpdate({_id: id}, cmd.query, cmd.options));
+        });
         var product = await Promise.all(updatePromises);
+        await session.commitTransaction();
+        session.endSession();
     }
     catch(e) {
         await session.abortTransaction();
@@ -105,26 +115,38 @@ router.patch('/:id', auth, asyncMiddleware(async (req, res) => {
         throw e;
     }
     
-    await session.abortTransaction();
-    session.endSession();
-
     product = product[product.length - 1]
 
     if(!product) return res.status(400).send({error: `product with id ${id} not found`});
     
     //everything is fine
-    res.status(200).send({success: 'Product updated'}); // can also resturn the resource
+    res.status(200).send(product);
     
     //delete staleMedia media
     deleteStateMedia(staleMedia);
 }));
 
 router.delete('/:id', auth, asyncMiddleware(async (req, res) => {
-    /**
-     * TODO:: Deciding on soft delete vs hard delete
-     */
+    const id = req.params.id;
+    
+    //query product
+    const product = await Product.findById(id);
 
-     console.log('Not implemented yet')
+    // if not found return 404
+    if(!product) return res.status(404).send({error: `product with id ${id} not found`});
+
+    let staleMedia = [];
+
+    product.varients.forEach((v) => {
+        const m = v.media.map((m) => {return m.path});
+        staleMedia = [...staleMedia, ...m]
+    });
+
+    await Product.deleteOne({id: id});
+
+    deleteStateMedia(staleMedia);
+
+    return res.status(204).send();
 }));
 
 module.exports = router;

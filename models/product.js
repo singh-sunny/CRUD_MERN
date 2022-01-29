@@ -147,8 +147,8 @@ const varientValidators = {
 }
 
 
-const validateProduct = (productDetails, productFileNames, isPut) => {
-    let {error} = validateProductDetails(productDetails, isPut);
+const validateProduct = (productDetails, productFileNames) => {
+    let {error} = validateProductDetails(productDetails);
 
     if(!error) {
         return (validateProductFiles(productDetails, productFileNames));
@@ -157,11 +157,7 @@ const validateProduct = (productDetails, productFileNames, isPut) => {
     return {error: error};
 };
 
-const validateProductDetails = (productDetails, isPut=false) => {
-
-    if(isPut) {
-        varientValidators.media = Joi.array().min(1).items(mediaValidators).required();
-    }
+const validateProductDetails = (productDetails) => {
 
     const varientsSchema = Joi.object(varientValidators);
 
@@ -218,7 +214,8 @@ const validateProductPatchHTTPReq = (productDetails) => {
         update: Joi.array().min(1).items(varientUpdateSchema),
         deleteMediaForDeletedVarients: Joi.array().min(1).items(Joi.string()), //file names to be deleted from disk
         deleteMediaForUpdatedVarients: Joi.array().min(1).items(Joi.string()), //skuID:media _id:file_name
-    }).with('delete', 'deleteMediaForDeletedVarients').or('delete', 'create', 'update', 'deleteMediaForUpdatedVarients');
+        addMediaForUpdatedVarients: Joi.array().min(1).items(Joi.string()), //skuID
+    }).with('delete', 'deleteMediaForDeletedVarients').or('delete', 'create', 'update', 'deleteMediaForUpdatedVarients', 'addMediaForUpdatedVarients');
 
     const productSchema = Joi.object({
         faq: faqPatchSchema,

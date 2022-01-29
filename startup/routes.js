@@ -12,7 +12,7 @@ module.exports = (app) => {
     app.use(compression());
     app.use(helmet());
     app.use(morgan(CONSTANTS.HTTP_LOG_LEVEL.DEVELOPMENT));
-    app.use(express.static(path.join(__dirname, 'public')));
+    app.use(express.static(path.join(__dirname, '../public/')));
 
     app.use('/api/products', products);
     app.use(error);
