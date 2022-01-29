@@ -7,6 +7,7 @@
 4. Transaction in HTTTP PATCH
 5. Validation at express(Joi), mongoose(Mongoose Schema) schema, MongoDB (MongoDB) schema
 6. Configuration with config.
+7. Using HTTP Compression
 
 ##Postman Collection
 https://github.com/singh-sunny/CRUD_MERN/blob/master/Products.postman_collection.json
