@@ -1,0 +1,220 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Products",
+		"_postman_id": "241a1d4f-cd37-9b04-3d75-2622e2a5c235",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "POST products",
+			"request": {
+				"url": "http://localhost:3000/api/products/",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic username:password",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "2500",
+							"description": "",
+							"type": "file",
+							"src": "3.png"
+						},
+						{
+							"key": "2501",
+							"description": "",
+							"type": "file",
+							"src": "3.png"
+						},
+						{
+							"key": "2502",
+							"description": "",
+							"type": "file",
+							"src": "3.png"
+						},
+						{
+							"key": "productDetails",
+							"value": "{\n    \n    \"faq\": [\n        {\n            \"question\": \"Does this product require consultation\",\n            \"answer\": \"No.\"\n        },\n        {\n            \"question\": \"Does this product require maintainence?\",\n            \"answer\": \"No.\"\n            \n        }\n    ],\n    \"varients\": [\n        {\n            \"skuID\": \"2500\",\n            \"productTitle\": \"Title 2500\",\n            \"productDescription\": \"Description of Title 2500\",\n            \"isActive\": true,\n            \"dicountedListPrice\": 399,\n            \"listPrice\": 499,\n            \"EANCode\": 445566,\n            \"HSNCode\": 112233,\n            \"taxPercentage\": 2,\n            \"color\": \"Dark Greenish\"\n        },\n        {\n            \"skuID\": \"2501\",\n            \"productTitle\": \"Title 2501\",\n            \"productDescription\": \"Description of Title 2501\",\n            \"isActive\": false,\n            \"dicountedListPrice\": 399,\n            \"listPrice\": 499,\n            \"EANCode\": 445566,\n            \"HSNCode\": 112233,\n            \"taxPercentage\": 2,\n            \"color\": \"Transparentish\"\n        },\n        {\n            \"skuID\": \"2502\",\n            \"productTitle\": \"Title 2502\",\n            \"productDescription\": \"Description of Title 2502\",\n            \"isActive\": false,\n            \"dicountedListPrice\": 399,\n            \"listPrice\": 499,\n            \"EANCode\": 445566,\n            \"HSNCode\": 112233,\n            \"taxPercentage\": 2,\n            \"color\": \"Green Green\",\n            \"size\": \"Big\"\n        }\n    ]\n}",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GET products",
+			"request": {
+				"url": "http://localhost:3000/api/products/",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic username:password",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GET products/:id",
+			"request": {
+				"url": "http://localhost:3000/api/products/61f481d679fa6794cf4c4419",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic username:password",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Patch FAQ add, update, delete",
+			"request": {
+				"url": "http://localhost:3000/api/products/61f4173e034587b8f37b5170",
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "username:password",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "productDetails",
+							"value": "{\n\t\"faq\": {\n\t\t\"delete\": [\"61f4173e034587b8f37b5172\"],\n                \"create\": [{\n\t\t\t\"question\": \"Sunny's new Question\",\n\t\t\t\"answer\": \"Answer to Sunny's question\"\n\t\t}],\n\t\t\"update\": [{\n\t\t\t\"question\": \"Sunny's updated Question\",\n\t\t\t\"answer\": \"Answer to Sunny's updated question\",\n\t\t\t\"_id\": \"61f419df034587b8f37b5190\"\n\t\t}]\n\t}\n\n}",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": "Patch FAQ add, update, delete"
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE Product",
+			"request": {
+				"url": "http://localhost:3000/api/products/61f46de1bd7176eed30aa1fb",
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic username:password",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "PATCH full object",
+			"request": {
+				"url": "http://localhost:3000/api/products/61f46de1bd7176eed30aa1fb",
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic username:password",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "productDetails",
+							"value": "{\n\t\"faq\": {\n\t\t\"delete\": [\"61f46de1bd7176eed30aa1fc\"],\n\t\t\"create\": [{\n\t\t\t\"question\": \"This a brand new question created at 29 2022 02:58:31 GMT+0530\",\n\t\t\t\"answer\": \"Answer to the question created at 29 2022 02:58:31 GMT+0530\"\n\t\t}],\n\t\t\"update\": [{\n\t\t\t\"question\": \"I udated the question at time stamp 1643405366921\",\n\t\t\t\"answer\": \"Answer to above question at timestamp 1643405366921\",\n\t\t\t\"_id\": \"61f46de1bd7176eed30aa1fd\"\n\t\t}]\n\t}\n}",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "2503",
+							"value": "",
+							"description": "",
+							"type": "file",
+							"disabled": true
+						},
+						{
+							"key": "2501",
+							"value": "",
+							"description": "",
+							"type": "file",
+							"disabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "PUT products/:id",
+			"request": {
+				"url": "http://localhost:3000/api/products/61f481d679fa6794cf4c4419",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic username:password",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "productDetails",
+							"value": "{\n    \n    \"faq\": [\n        {\n            \"question\": \"12Does this product require consultation\",\n            \"answer\": \"12No.\"\n        },\n        {\n            \"question\": \"112Does this product require maintainence?\",\n            \"answer\": \"12No.\"\n            \n        }\n    ],\n    \"varients\": [\n        {\n            \"skuID\": \"2500\",\n            \"productTitle\": \"12Title 2500\",\n            \"productDescription\": \"12Description of Title 2500\",\n            \"isActive\": false,\n            \"dicountedListPrice\": 39,\n            \"listPrice\": 49,\n            \"EANCode\": 4455,\n            \"HSNCode\": 1122,\n            \"taxPercentage\": 0,\n            \"color\": \"Dark Greenishh\"\n        },\n        {\n            \"skuID\": \"2501\",\n            \"productTitle\": \"11Title 2501\",\n            \"productDescription\": \"Description of Title 2501\",\n            \"isActive\": false,\n            \"dicountedListPrice\": 399,\n            \"listPrice\": 499,\n            \"EANCode\": 445566,\n            \"HSNCode\": 112233,\n            \"taxPercentage\": 2,\n            \"color\": \"Transparentish\"\n        },\n        {\n            \"skuID\": \"2502\",\n            \"productTitle\": \"11Title 2502\",\n            \"productDescription\": \"Description of Title 2502\",\n            \"isActive\": false,\n            \"dicountedListPrice\": 399,\n            \"listPrice\": 499,\n            \"EANCode\": 445566,\n            \"HSNCode\": 112233,\n            \"taxPercentage\": 2,\n            \"color\": \"Green Green\",\n            \"size\": \"Big\"\n        }\n    ]\n}",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "2500",
+							"description": "",
+							"type": "file",
+							"src": "hook-flow.pdf"
+						},
+						{
+							"key": "2501",
+							"description": "",
+							"type": "file",
+							"src": "hook-flow.pdf"
+						},
+						{
+							"key": "2502",
+							"description": "",
+							"type": "file",
+							"src": "hook-flow.pdf"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
